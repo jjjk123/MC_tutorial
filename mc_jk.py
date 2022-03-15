@@ -20,7 +20,10 @@ def energy(atoms) -> float:
     """
     Evaluates energy, e.g. square well
     """
-    pass
+    en = 0
+    for i in range(len(atoms)):
+        en += energy(atoms, i)
+    return en
 
 
 def energy(atoms, index:int) -> float:
@@ -32,10 +35,9 @@ def energy(atoms, index:int) -> float:
     if d < d_min:
         return 10000000000
     elif d < d_max:
-        en += 1
+        en += -1
     else:
         return 0
-
     return en
 
 
@@ -52,12 +54,13 @@ def metropolis(atoms, T:float) -> bool:
     8) Metropolis criterion
     """
     i_moved = int(random.random()*10)
-    e_before = energy(atoms, i_moved)
+    en_before = energy(atoms, i_moved)
     dx = random.uniform(-0.5, 0.5)
     dy = random.uniform(-0.5, 0.5)
     prev_x, prev_y = atoms[i_moved]
     atoms[i_moved][0] += dx
     atoms[i_moved][1] += dy
+    en_after = energy(atoms, i_moved)
 
 
 if __name__ == "__main__":
