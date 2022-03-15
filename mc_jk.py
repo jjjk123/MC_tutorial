@@ -1,10 +1,14 @@
 from typing import List, Set, Dict, Tuple, Optional
+import random
+import math
 
 def generate(atoms, d_min:float, L:float) -> None:
     """ Initializes positions of all atoms in 2D; points (x, y) should not overlap
     both x and y in the range [0,L]
     """
-    pass
+    for i in range(len(atoms)):
+        atoms[i][0] = L/len(atoms) + i * d_min
+        atoms[i][1] = L/len(atoms) + i * d_min
 
 
 def print_pdb(atoms) ->None:
@@ -23,7 +27,16 @@ def energy(atoms, index:int) -> float:
     """
     Evaluates energy of a single atom
     """
-    pass
+    d = math.sqrt(atoms[index][0]**2 + atoms[index][1]**2)
+    en = 0
+    if d < d_min:
+        return 10000000000
+    elif d < d_max:
+        en += 1
+    else:
+        return 0
+
+    return en
 
 
 def metropolis(atoms, T:float) -> bool:
@@ -38,6 +51,13 @@ def metropolis(atoms, T:float) -> bool:
     7) e_after = energy(atoms, i_moved)
     8) Metropolis criterion
     """
+    i_moved = int(random.random()*10)
+    e_before = energy(atoms, i_moved)
+    dx = random.uniform(-0.5, 0.5)
+    dy = random.uniform(-0.5, 0.5)
+    prev_x, prev_y = atoms[i_moved]
+    atoms[i_moved][0] += dx
+    atoms[i_moved][1] += dy
 
 
 if __name__ == "__main__":
@@ -48,8 +68,10 @@ if __name__ == "__main__":
     T:float = 1.0               # --- temperature of the simulation
 
     # --- positions
-    atoms: List[Tuple[int, int]] = [(0, 0) for i in range(N_atoms)]
+    atoms: List[List] = [[0, 0] for i in range(N_atoms)]
+    print(atoms)
     generate(atoms, r0, L)
+    print(atoms)
     for i in range(100):
         metropolis(atoms,T)
         print_pdb(atoms)
