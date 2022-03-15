@@ -60,8 +60,23 @@ def metropolis(atoms, T:float) -> bool:
     prev_x, prev_y = atoms[i_moved]
     atoms[i_moved][0] += dx
     atoms[i_moved][1] += dy
+
+    if atoms[i_moved][0] > L:
+        atoms[i_moved][0] = L - dx
+    elif atoms[i_moved][1] > L:
+        atoms[i_moved][1] = L - dy
+
     en_after = energy(atoms, i_moved)
 
+    if en_after < en_before:
+        pass
+    else:
+        r = random.random()
+        if math.exp(-(en_after - en_before)/T) < r:
+            pass
+        else:
+            atoms[i_moved][0] = prev_x
+            atoms[i_moved][1] = prev_y
 
 if __name__ == "__main__":
 
