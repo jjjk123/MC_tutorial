@@ -13,9 +13,14 @@ def generate(N, d_min:float, L:float) -> np.ndarray:
     atoms = np.array(np.meshgrid(x_list, y_list)).T.reshape(-1, 2)
     return atoms
 
-def print_pdb(atoms) ->None:
+def print_pdb(atoms, model) ->None:
     """ Prints all positions on a screen"""
-    pass
+    pdb = ""
+    pdb += "MODEL    " + str(model) + '\n'
+    for index in range(len(atoms)):
+        pdb += str("ATOM   %4d%4s  AAA A%4d    %8.3f%8.3f%8.3f  0.50 35.88           A" % \
+            (index, "AR", index, atoms[index][0], atoms[index][1], 0)) + '\n'
+    return pdb
 
 
 def energy(atoms) -> float:
@@ -24,11 +29,11 @@ def energy(atoms) -> float:
     """
     en = 0
     for i in range(len(atoms)):
-        en += energy(atoms, i)
+        en += energy(atoms, i, 1, 4)
     return en
 
 
-def energy(atoms, index:int) -> float:
+def energy(atoms, index:int, d_min:float, d_max:float) -> float:
     """
     Evaluates energy of a single atom
     """
@@ -42,6 +47,7 @@ def energy(atoms, index:int) -> float:
     else:
         return 0
     return en
+    # PWB
 
 
 def metropolis(atoms, T:float) -> bool:
@@ -92,6 +98,10 @@ if __name__ == "__main__":
     atoms: List[List] = [[0, 0] for i in range(N_atoms)]
     atoms = generate(N_atoms, r0, L)
     print(atoms)
+    pdb = print_pdb(atoms, 1)
+    print(pdb)
+    f = open('MC_simulation.pdb', 'w')
+    f.write(pdb)
     for i in range(100):
         metropolis(atoms,T)
         print_pdb(atoms)
