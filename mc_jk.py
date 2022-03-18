@@ -1,15 +1,17 @@
 from typing import List, Set, Dict, Tuple, Optional
 import random
 import math
+import numpy as np
 
-def generate(atoms, d_min:float, L:float) -> None:
+def generate(N, d_min:float, L:float) -> np.ndarray:
     """ Initializes positions of all atoms in 2D; points (x, y) should not overlap
     both x and y in the range [0,L]
     """
-    for i in range(len(atoms)):
-        atoms[i][0] = L/len(atoms) + i * d_min
-        atoms[i][1] = L/len(atoms) + i * d_min
-
+    n = int(math.sqrt(N))
+    x_list = np.arange(n, L, L/n)
+    y_list = np.arange(n, L, L/n)
+    atoms = np.array(np.meshgrid(x_list, y_list)).T.reshape(-1, 2)
+    return atoms
 
 def print_pdb(atoms) ->None:
     """ Prints all positions on a screen"""
@@ -30,7 +32,8 @@ def energy(atoms, index:int) -> float:
     """
     Evaluates energy of a single atom
     """
-    d = math.sqrt(atoms[index][0]**2 + atoms[index][1]**2)
+    for i in range(len(atoms)):
+        d = math.sqrt((atoms[index-1][0] - atoms[index][0])**2 + (atoms[index][1] - atoms[index][1])**2)
     en = 0
     if d < d_min:
         return 10000000000
@@ -80,15 +83,14 @@ def metropolis(atoms, T:float) -> bool:
 
 if __name__ == "__main__":
 
-    N_atoms: int = 10           # --- the number of atoms (particles)
-    L = 20                      # --- size of the periodic box in A
+    N_atoms: int = 9           # --- the number of atoms (particles)
+    L = 10                      # --- size of the periodic box in A
     r0: float = 2.0             # --- atom radius
     T:float = 1.0               # --- temperature of the simulation
 
     # --- positions
     atoms: List[List] = [[0, 0] for i in range(N_atoms)]
-    print(atoms)
-    generate(atoms, r0, L)
+    atoms = generate(N_atoms, r0, L)
     print(atoms)
     for i in range(100):
         metropolis(atoms,T)
