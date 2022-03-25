@@ -2,15 +2,19 @@ from typing import List, Set, Dict, Tuple, Optional
 import random
 import math
 import numpy as np
+import sys
+import os
 
 def generate(N, L:float) -> np.ndarray:
     """ Initializes positions of all atoms in 2D; points (x, y) should not overlap
     both x and y in the range [0,L]
     """
     n = int(math.sqrt(N))
-    x_list = np.arange(n, L, L/n)
-    y_list = np.arange(n, L, L/n)
+    l = L/(n+1)
+    x_list = np.linspace(l, L-l, num=n, endpoint=True)
+    y_list = np.linspace(l, L-l, num=n, endpoint=True)
     atoms = np.array(np.meshgrid(x_list, y_list)).T.reshape(-1, 2)
+    # sys.exit('x')
     return atoms
 
 def print_pdb(atoms, model, file_name) ->None:
@@ -44,7 +48,7 @@ def energy(atoms, L, index:int, d_min:float, d_max:float) -> float:
             continue
         dx = abs(atoms[index][0] - atoms[i][0])
         dy = abs(atoms[index][1] - atoms[i][1])
-        dx = dx if dx < L/2 else L - dx 
+        dx = dx if dx < L/2 else L - dx
         dy = dy if dy < L/2 else L - dy
         d = math.sqrt(dx**2 + dy**2)
         # if index == 0:
@@ -96,22 +100,24 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
 
 if __name__ == "__main__":
 
-    N_atoms: int = 100           # --- the number of atoms (particles)
-    L = 30                     # --- size of the periodic box in A
+    N_atoms: int = 4           # --- the number of atoms (particles)
+    L = 9                     # --- size of the periodic box in A
     T:float = 1.0               # --- temperature of the simulation
     d_min = 2
     d_max = 3
 
     # --- positions
     atoms = generate(N_atoms, L)
+    print(atoms)
     en_prev = total_energy(atoms, L, d_min, d_max)
-    print('prev_en', en_prev)
+    print(en_prev)
+    pdb_file = 'MC_simulation.pdb'
+    if os.path.exists(pdb_file):
+        os.remove(pdb_file)
+    print_pdb(atoms, 0, pdb_file)
     for j in range(100):
         for i in range(100):
             metropolis(atoms, L, T, d_min, d_max)
-        print(total_energy(atoms, L, d_min, d_max))
-        print_pdb(atoms, i, 'MC_simulation.pdb')
+        print_pdb(atoms, i+1, pdb_file)
     en_after = total_energy(atoms, L, d_min, d_max)
-    print('after_en', en_after)
-
-
+    print(en_after)
