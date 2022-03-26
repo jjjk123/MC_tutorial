@@ -1,6 +1,9 @@
-import math
+x = -0.5
+y = 0.5
 
-d_en = 100000
-T: float = 1.0
-
-print(math.exp(-(d_en)/T))
+if x < 0:
+    print('hello')
+if y < 0:
+    print('hello')
+else:
+    print('a')

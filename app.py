@@ -4,6 +4,7 @@ import math
 import numpy as np
 import sys
 import os
+import matplotlib.pyplot as plt
 
 def generate(N, L:float) -> np.ndarray:
     """ Initializes positions of all atoms in 2D; points (x, y) should not overlap
@@ -35,8 +36,6 @@ def total_energy(atoms, L, d_min, d_max) -> float:
     en = 0
     for i in range(len(atoms)):
         en += energy(atoms, L, i, d_min, d_max)
-        print('en', i, en)
-        break
     return en
 
 
@@ -48,24 +47,15 @@ def energy(atoms, L, index:int, d_min:float, d_max:float) -> float:
     for i in range(len(atoms)):
         if i == index:
             continue
-        print('     pair', i, index)
         dx = abs(atoms[index][0] - atoms[i][0])
-        print('dx', dx)
         dy = abs(atoms[index][1] - atoms[i][1])
-        print('dy', dy)
         dx = dx if dx < L/2 else L - dx
-        print('dx after', dx)
         dy = dy if dy < L/2 else L - dy
-        print('dy after', dy)
         d = math.sqrt(dx**2 + dy**2)
-        print('d', d, 'd_min', d_min)
-        # if index == 0:
-        #     print(i, dx, dy, d)
         if d < d_min:
-            en += 1000
+            en += 10000000
         elif d < d_max:
             en += -1
-        print('en', en)
     return en
 
 def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
@@ -85,28 +75,25 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
     en_before = energy(atoms, L, i_moved, d_min, d_max)
     dx = random.uniform(-0.5, 0.5)
     dy = random.uniform(-0.5, 0.5)
-    print('                 i_moved', i_moved, dx, dy)
     prev_x, prev_y = atoms[i_moved]
-    atoms[i_moved][0] += dx
-    atoms[i_moved][1] += dy
-
-    if atoms[i_moved][0] > L:
-        atoms[i_moved][0] = L - atoms[i_moved][0]
-    elif atoms[i_moved][1] > L:
-        atoms[i_moved][1] = L - atoms[i_moved][1]
-
+    temp_x = atoms[i_moved][0] + dx
+    temp_y = atoms[i_moved][1] + dy
+    if temp_x < 0:
+        atoms[i_moved][0] = L - temp_x
+    else:
+        atoms[i_moved][0] = temp_x if temp_x < L else temp_x - L
+    if temp_y < 0:
+        atoms[i_moved][1] = L - temp_y
+    else:
+        atoms[i_moved][1] = temp_y if temp_y < L else temp_y - L
     en_after = energy(atoms, L, i_moved, d_min, d_max)
 
     d_en = en_after - en_before 
-    print('-----d_en', d_en)
     if d_en < 0:
         pass
     else:
         r = random.random()
-        print('----r',r)
-        print('=====exp', math.exp(-(d_en)/T))
-        if math.exp(-(d_en)/T) < r:
-            print('!!! ACCEPTED !!!')
+        if math.exp(-(d_en)/T) > r:
             pass
         else:
             atoms[i_moved][0] = prev_x
@@ -114,25 +101,28 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
 
 if __name__ == "__main__":
 
-    N_atoms: int = 4           # --- the number of atoms (particles)
-    L = 3                      # --- size of the periodic box in A
+    N_atoms: int = 16           # --- the number of atoms (particles)
+    L = 5                        # --- size of the periodic box in A
     T:float = 1.0               # --- temperature of the simulation
     d_min = 1
     d_max = 3
 
     # --- positions
     atoms = generate(N_atoms, L)
-    print(atoms)
     en_prev = total_energy(atoms, L, d_min, d_max)
-    # print(en_prev)
+    energies = [en_prev]
     pdb_file = 'MC_simulation.pdb'
     if os.path.exists(pdb_file):
         os.remove(pdb_file)
     print_pdb(atoms, 0, pdb_file)
     for j in range(100):
-        print('         round', j)
         for i in range(100):
             metropolis(atoms, L, T, d_min, d_max)
         print_pdb(atoms, i+1, pdb_file)
+        energies.append(total_energy(atoms, L, d_min, d_max))
     en_after = total_energy(atoms, L, d_min, d_max)
-    # print(en_after)
+    print(en_after)
+    print(energies)
+
+    plt.plot(range(len(energies)), energies)
+    plt.show()
