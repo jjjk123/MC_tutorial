@@ -99,11 +99,18 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
             atoms[i_moved][0] = prev_x
             atoms[i_moved][1] = prev_y
 
+def plot_energies(energies):
+    plt.plot(range(len(energies)), energies)
+    plt.ylabel('E')
+    plt.xlabel('step')
+    plt.legend()
+    plt.show()
+
 if __name__ == "__main__":
 
     N_atoms: int = 16           # --- the number of atoms (particles)
     L = 5                        # --- size of the periodic box in A
-    T:float = 1.0               # --- temperature of the simulation
+    T:float = 10.0               # --- temperature of the simulation
     d_min = 1
     d_max = 3
 
@@ -111,18 +118,16 @@ if __name__ == "__main__":
     atoms = generate(N_atoms, L)
     en_prev = total_energy(atoms, L, d_min, d_max)
     energies = [en_prev]
+
     pdb_file = 'MC_simulation.pdb'
     if os.path.exists(pdb_file):
         os.remove(pdb_file)
     print_pdb(atoms, 0, pdb_file)
+
     for j in range(100):
         for i in range(100):
             metropolis(atoms, L, T, d_min, d_max)
         print_pdb(atoms, i+1, pdb_file)
         energies.append(total_energy(atoms, L, d_min, d_max))
-    en_after = total_energy(atoms, L, d_min, d_max)
-    print(en_after)
-    print(energies)
 
-    plt.plot(range(len(energies)), energies)
-    plt.show()
+    plot_energies(energies)
