@@ -7,3 +7,8 @@ if y < 0:
     print('hello')
 else:
     print('a')
+
+
+l = [1, 2, 3]
+for i, x in enumerate(l):
+    print(i, x)

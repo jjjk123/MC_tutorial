@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import os
 import matplotlib.pyplot as plt
+from collections import Counter
 
 def generate(N, L:float) -> np.ndarray:
     """ Initializes positions of all atoms in 2D; points (x, y) should not overlap
@@ -17,17 +18,6 @@ def generate(N, L:float) -> np.ndarray:
     atoms = np.array(np.meshgrid(x_list, y_list)).T.reshape(-1, 2)
     # sys.exit('x')
     return atoms
-
-def print_pdb(atoms, model, file_name) ->None:
-    """ Prints all positions on a screen"""
-    pdb = ""
-    pdb += "MODEL    " + str(model) + '\n'
-    for index in range(len(atoms)):
-        pdb += str("ATOM   %4d%4s  AAA A%4d    %8.3f%8.3f%8.3f  0.50 35.88           A" % \
-            (index, "AR", index, atoms[index][0], atoms[index][1], 0)) + '\n'
-    pdb += "ENDMDL\n"
-    with open(file_name, 'a') as f:
-        f.write(pdb)
 
 def total_energy(atoms, L, d_min, d_max) -> float:
     """
@@ -90,14 +80,38 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
 
     d_en = en_after - en_before 
     if d_en < 0:
-        pass
+        return True
     else:
         r = random.random()
         if math.exp(-(d_en)/T) > r:
-            pass
+            return True
         else:
             atoms[i_moved][0] = prev_x
             atoms[i_moved][1] = prev_y
+            return False
+
+def print_pdb(atoms, model, file_name) ->None:
+    """ Prints all positions on a screen"""
+    pdb = ""
+    pdb += "MODEL    " + str(model) + '\n'
+    for index in range(len(atoms)):
+        pdb += str("ATOM   %4d%4s  AAA A%4d    %8.3f%8.3f%8.3f  0.50 35.88           A" % \
+            (index, "AR", index, atoms[index][0], atoms[index][1], 0)) + '\n'
+    pdb += "ENDMDL\n"
+    with open(file_name, 'a') as f:
+        f.write(pdb)
+
+def print_energies(energies, file_name):
+    for i, en in enumerate(energies):
+        row = 'step ' + str(i+1) + ' energy ' + str(en) + '\n'
+        with open(file_name, 'a') as f:
+            f.write(row)
+
+def count_moves(moved_list):
+    c = Counter(moved_list)
+    print(c[True])
+    print(c[False])
+    # return c[True]/len(moved_list)*100
 
 def plot_energies(energies):
     plt.plot(range(len(energies)), energies)
@@ -108,8 +122,8 @@ def plot_energies(energies):
 
 if __name__ == "__main__":
 
-    N_atoms: int = 16           # --- the number of atoms (particles)
-    L = 5                        # --- size of the periodic box in A
+    N_atoms: int = 32           # --- the number of atoms (particles)
+    L = 40                        # --- size of the periodic box in A
     T:float = 10.0               # --- temperature of the simulation
     d_min = 1
     d_max = 3
@@ -124,10 +138,19 @@ if __name__ == "__main__":
         os.remove(pdb_file)
     print_pdb(atoms, 0, pdb_file)
 
-    for j in range(100):
-        for i in range(100):
-            metropolis(atoms, L, T, d_min, d_max)
+    moved = []
+    for j in range(10):
+        for i in range(10):
+            # for k in range(N_atoms):
+            moved.append(metropolis(atoms, L, T, d_min, d_max))
         print_pdb(atoms, i+1, pdb_file)
         energies.append(total_energy(atoms, L, d_min, d_max))
 
+    en_file = 'energies.txt'
+    if os.path.exists(en_file):
+        os.remove(en_file)
+    print_energies(energies, en_file)
+
+    cnt = count_moves(moved)
+    print(cnt, '%')
     plot_energies(energies)
