@@ -63,8 +63,8 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
     N = len(atoms)
     i_moved = int(random.random() * N)
     en_before = energy(atoms, L, i_moved, d_min, d_max)
-    dx = random.uniform(-0.5, 0.5)
-    dy = random.uniform(-0.5, 0.5)
+    dx = random.uniform(-1, 1)
+    dy = random.uniform(-1, 1)
     prev_x, prev_y = atoms[i_moved]
     temp_x = atoms[i_moved][0] + dx
     temp_y = atoms[i_moved][1] + dy
@@ -109,22 +109,20 @@ def print_energies(energies, file_name):
 
 def count_moves(moved_list):
     c = Counter(moved_list)
-    print(c[True])
-    print(c[False])
-    # return c[True]/len(moved_list)*100
+    return c[True]/len(moved_list)*100
 
 def plot_energies(energies):
     plt.plot(range(len(energies)), energies)
     plt.ylabel('E')
     plt.xlabel('step')
     plt.legend()
-    plt.show()
+    plt.savefig('energy_plot.png')
 
 if __name__ == "__main__":
 
     N_atoms: int = 32           # --- the number of atoms (particles)
-    L = 40                        # --- size of the periodic box in A
-    T:float = 10.0               # --- temperature of the simulation
+    L = 20                        # --- size of the periodic box in A
+    T:float = 1.0               # --- temperature of the simulation
     d_min = 1
     d_max = 3
 
@@ -141,8 +139,8 @@ if __name__ == "__main__":
     moved = []
     for j in range(10):
         for i in range(10):
-            # for k in range(N_atoms):
-            moved.append(metropolis(atoms, L, T, d_min, d_max))
+            for k in range(N_atoms):
+                moved.append(metropolis(atoms, L, T, d_min, d_max))
         print_pdb(atoms, i+1, pdb_file)
         energies.append(total_energy(atoms, L, d_min, d_max))
 
