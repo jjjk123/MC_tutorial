@@ -120,8 +120,8 @@ def plot_energies(energies):
 
 if __name__ == "__main__":
 
-    N_atoms: int = 32           # --- the number of atoms (particles)
-    L = 20                        # --- size of the periodic box in A
+    N_atoms: int = 100           # --- the number of atoms (particles)
+    L = 45                        # --- size of the periodic box in A
     T:float = 1.0               # --- temperature of the simulation
     d_min = 1
     d_max = 3
@@ -137,8 +137,10 @@ if __name__ == "__main__":
     print_pdb(atoms, 0, pdb_file)
 
     moved = []
-    for j in range(10):
-        for i in range(10):
+    #outer cycle
+    for j in range(1000):
+        #inner cycle
+        for i in range(100):
             for k in range(N_atoms):
                 moved.append(metropolis(atoms, L, T, d_min, d_max))
         print_pdb(atoms, i+1, pdb_file)
