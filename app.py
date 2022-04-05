@@ -125,6 +125,8 @@ if __name__ == "__main__":
     T:float = 1.0               # --- temperature of the simulation
     d_min = 1
     d_max = 3
+    outer_cycles = 1000
+    inner_cycles = 100
 
     # --- positions
     atoms = generate(N_atoms, L)
@@ -138,13 +140,14 @@ if __name__ == "__main__":
 
     moved = []
     #outer cycle
-    for j in range(1000):
+    for j in range(outer_cycles):
         #inner cycle
-        for i in range(100):
+        for i in range(inner_cycles):
             for k in range(N_atoms):
                 moved.append(metropolis(atoms, L, T, d_min, d_max))
         print_pdb(atoms, i+1, pdb_file)
         energies.append(total_energy(atoms, L, d_min, d_max))
+        print(j/outer_cycles*100, '%')
 
     en_file = 'energies.txt'
     if os.path.exists(en_file):
