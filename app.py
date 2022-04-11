@@ -19,6 +19,19 @@ def generate(N, L:float) -> np.ndarray:
     # sys.exit('x')
     return atoms
 
+def load_pdb(file_name) -> np.ndarray:
+    """Loads model from a .pdb file"""
+    with open(file_name, 'r') as f:
+        file = f.read()
+    last_model = file[file.rfind('MODEL'):].splitlines()
+    atoms = []
+    for atom in last_model[1:-1]:
+        x = float(atom[32:39].replace(' ', ''))
+        y = float(atom[40:47].replace(' ', ''))
+        atoms.append([x, y])
+    atoms = np.asarray(atoms)
+    return atoms
+
 def total_energy(atoms, L, d_min, d_max) -> float:
     """
     Evaluates energy, e.g. square well
@@ -125,15 +138,18 @@ if __name__ == "__main__":
     T:float = 1.0               # --- temperature of the simulation
     d_min = 1
     d_max = 3
-    outer_cycles = 1000
-    inner_cycles = 100
+    # outer_cycles = 1000
+    # inner_cycles = 100
+    outer_cycles = 10
+    inner_cycles = 10
 
     # --- positions
-    atoms = generate(N_atoms, L)
+    # atoms = generate(N_atoms, L)
+    atoms = load_pdb('MC_simulation.pdb')
     en_prev = total_energy(atoms, L, d_min, d_max)
     energies = [en_prev]
 
-    pdb_file = 'MC_simulation.pdb'
+    pdb_file = 'MC_simulation_test.pdb'
     if os.path.exists(pdb_file):
         os.remove(pdb_file)
     print_pdb(atoms, 0, pdb_file)
