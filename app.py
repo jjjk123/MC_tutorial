@@ -95,7 +95,6 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
         return True
     else:
         r = random.random()
-        print(type(T))
         if math.exp(-(d_en)/T) > r:
             return True
         else:
