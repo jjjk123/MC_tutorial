@@ -137,10 +137,10 @@ if __name__ == "__main__":
     T:float = float(sys.argv[1])         # --- temperature of the simulation
     d_min = 1
     d_max = 3
-    # outer_cycles = 1000
-    # inner_cycles = 100
-    outer_cycles = 10
-    inner_cycles = 10
+    outer_cycles = 1000
+    inner_cycles = 100
+    # outer_cycles = 10
+    # inner_cycles = 10
 
     # --- positions
     atoms = generate(N_atoms, L)
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     en_prev = total_energy(atoms, L, d_min, d_max)
     energies = [en_prev]
 
-    pdb_file = f'T_{T}/MC_simulation_test.pdb'
+    pdb_file = f'T_{T}/MC_simulation.pdb'
     if os.path.exists(pdb_file):
         os.remove(pdb_file)
     print_pdb(atoms, 0, pdb_file)
