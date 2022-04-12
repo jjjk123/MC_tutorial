@@ -16,7 +16,6 @@ def generate(N, L:float) -> np.ndarray:
     x_list = np.linspace(l, L-l, num=n, endpoint=True)
     y_list = np.linspace(l, L-l, num=n, endpoint=True)
     atoms = np.array(np.meshgrid(x_list, y_list)).T.reshape(-1, 2)
-    # sys.exit('x')
     return atoms
 
 def load_pdb(file_name) -> np.ndarray:
@@ -114,9 +113,9 @@ def print_pdb(atoms, model, file_name) ->None:
     with open(file_name, 'a') as f:
         f.write(pdb)
 
-def print_energies(energies, file_name):
+def print_energies(energies, file_name, sum_moved):
     for i, en in enumerate(energies):
-        row = 'step ' + str(i+1) + ' energy ' + str(en) + '\n'
+        row = 'step ' + str(i+1) + ' energy ' + str(en) + 'sum_moved ' + str(sum_moved) + '\n'
         with open(file_name, 'a') as f:
             f.write(row)
 
@@ -154,21 +153,23 @@ if __name__ == "__main__":
         os.remove(pdb_file)
     print_pdb(atoms, 0, pdb_file)
 
-    moved = []
     #outer cycle
+    sum_moved = [0]
     for j in range(outer_cycles):
         #inner cycle
+        moved = []
         for i in range(inner_cycles):
             for k in range(N_atoms):
                 moved.append(metropolis(atoms, L, T, d_min, d_max))
         print_pdb(atoms, i+1, pdb_file)
         energies.append(total_energy(atoms, L, d_min, d_max))
+        sum_moved.append(sum(moved)/(N_atoms*inner_cycles))
         print(j/outer_cycles*100, '%')
 
     en_file = 'energies.txt'
     if os.path.exists(en_file):
         os.remove(en_file)
-    print_energies(energies, en_file)
+    print_energies(energies, en_file, sum_moved)
 
     cnt = count_moves(moved)
     print(cnt, '%')
