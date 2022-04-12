@@ -133,10 +133,9 @@ def plot_energies(energies, T):
 
 if __name__ == "__main__":
 
-    N_atoms: int = 100           # --- the number of atoms (particles)
+    N_atoms: int = 100            # --- the number of atoms (particles)
     L = 45                        # --- size of the periodic box in A
-    T:float = sys.argv[1]
-    print(type(T))               # --- temperature of the simulation
+    T:float = float(sys.argv[1])         # --- temperature of the simulation
     d_min = 1
     d_max = 3
     # outer_cycles = 1000
