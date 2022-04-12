@@ -123,32 +123,32 @@ def count_moves(moved_list):
     c = Counter(moved_list)
     return c[True]/len(moved_list)*100
 
-def plot_energies(energies):
+def plot_energies(energies, T):
     plt.plot(range(len(energies)), energies)
     plt.ylabel('E')
     plt.xlabel('step')
     plt.legend()
-    plt.savefig('energy_plot.png')
+    plt.savefig(f'T_{T}/energy_plot.png')
 
 if __name__ == "__main__":
 
     N_atoms: int = 100           # --- the number of atoms (particles)
     L = 45                        # --- size of the periodic box in A
-    T:float = 1.0               # --- temperature of the simulation
+    T:float = sys.argv[1]               # --- temperature of the simulation
     d_min = 1
     d_max = 3
-    # outer_cycles = 1000
-    # inner_cycles = 100
-    outer_cycles = 10
-    inner_cycles = 10
+    outer_cycles = 1000
+    inner_cycles = 100
+    # outer_cycles = 10
+    # inner_cycles = 10
 
     # --- positions
-    # atoms = generate(N_atoms, L)
-    atoms = load_pdb('MC_simulation.pdb')
+    atoms = generate(N_atoms, L)
+    # atoms = load_pdb(f'T_{T}/MC_simulation.pdb')
     en_prev = total_energy(atoms, L, d_min, d_max)
     energies = [en_prev]
 
-    pdb_file = 'MC_simulation_test.pdb'
+    pdb_file = f'T_{T}/MC_simulation_test.pdb'
     if os.path.exists(pdb_file):
         os.remove(pdb_file)
     print_pdb(atoms, 0, pdb_file)
@@ -166,11 +166,11 @@ if __name__ == "__main__":
         sum_moved.append(sum(moved)/(N_atoms*inner_cycles))
         print(j/outer_cycles*100, '%')
 
-    en_file = 'energies.txt'
+    en_file = f'T_{T}/energies.txt'
     if os.path.exists(en_file):
         os.remove(en_file)
     print_energies(energies, en_file, sum_moved)
 
     cnt = count_moves(moved)
     print(cnt, '%')
-    plot_energies(energies)
+    plot_energies(energies, T)
