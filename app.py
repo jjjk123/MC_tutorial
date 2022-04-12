@@ -95,6 +95,7 @@ def metropolis(atoms, L, T:float, d_min, d_max) -> bool:
         return True
     else:
         r = random.random()
+        print(type(T))
         if math.exp(-(d_en)/T) > r:
             return True
         else:
@@ -138,10 +139,10 @@ if __name__ == "__main__":
     print(type(T))               # --- temperature of the simulation
     d_min = 1
     d_max = 3
-    outer_cycles = 1000
-    inner_cycles = 100
-    # outer_cycles = 10
-    # inner_cycles = 10
+    # outer_cycles = 1000
+    # inner_cycles = 100
+    outer_cycles = 10
+    inner_cycles = 10
 
     # --- positions
     atoms = generate(N_atoms, L)
